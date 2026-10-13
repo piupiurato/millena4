@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bom dia, Millena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --noite-alto: #1d1b3a;
+    --noite-baixo: #3b2f5c;
+    --aurora-rosa: #f2a7a0;
+    --aurora-pessego: #fbd0a2;
+    --ouro: #ffe29a;
+    --texto: #fff8f0;
+    --font: "Instrument Serif", Georgia, "Times New Roman", serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--noite-alto);
+    color: var(--texto);
+    font-family: var(--font);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .cena { position: fixed; inset: 0; overflow: hidden; }
+
+  /* Para colocar a foto de vocês: troque none por url("data:image/...") */
+  .foto {
+    position: absolute; inset: 0;
+    background-image: var(--foto, none);
+    background-size: cover; background-position: center;
+    opacity: 0; transition: opacity 6s ease 1s;
+  }
+  .dia .foto { opacity: .55; }
+
+  .ceu-noite {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, var(--noite-alto) 0%, var(--noite-baixo) 70%, #5a3f6b 100%);
+    transition: opacity 7s ease;
+  }
+  .ceu-dia {
+    position: absolute; inset: 0; opacity: 0;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% 100%, var(--ouro) 0%, rgba(255,226,154,0) 60%),
+      linear-gradient(180deg, #8f8bd0 0%, #e7a3b8 45%, var(--aurora-pessego) 100%);
+    transition: opacity 7s ease;
+  }
+  .dia .ceu-noite { opacity: 0; }
+  .dia .ceu-dia { opacity: 1; }
+  .dia .foto + .veu { opacity: 1; }
+  .veu {
+    position: absolute; inset: 0; opacity: 0; transition: opacity 6s ease;
+    background: linear-gradient(180deg, rgba(40,25,60,.35), rgba(40,25,60,.55));
+  }
+
+  .estrelas { position: absolute; inset: 0; transition: opacity 4s ease; }
+  .estrelas i {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    background: #fff; opacity: .8;
+  }
+  .dia .estrelas { opacity: 0; }
+
+  .sol {
+    position: absolute; left: 50%; bottom: -22vmin;
+    width: 38vmin; height: 38vmin; margin-left: -19vmin;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff6d6 0%, var(--ouro) 45%, rgba(255,226,154,0) 72%);
+    transition: transform 9s cubic-bezier(.2,.6,.2,1);
+  }
+  .dia .sol { transform: translateY(-44vh); }
+
+  main {
+    position: relative; z-index: 2; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 8vh 9vw;
+    text-align: center;
+  }
+  .frase {
+    margin: 0; max-width: 18em;
+    font-weight: 400; font-style: italic;
+    font-size: clamp(1.9rem, 7.2vw, 3.3rem);
+    line-height: 1.25; letter-spacing: .005em;
+    text-wrap: balance;
+    text-shadow: 0 2px 28px rgba(40,20,60,.55);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 1.4s ease, transform 1.4s ease;
+  }
+  .frase.visivel { opacity: 1; transform: none; }
+  .frase.abertura { font-size: clamp(1.7rem, 6.4vw, 2.8rem); }
+  .frase.final { font-size: clamp(2.3rem, 9vw, 4rem); font-style: normal; }
+
+  .dica {
+    position: fixed; left: 0; right: 0; z-index: 3;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 5vh);
+    text-align: center; font-size: 1.1rem; opacity: .7;
+    transition: opacity 1.2s ease;
+  }
+  .dica.some { opacity: 0; pointer-events: none; }
+  .pulsa { animation: respira 3.2s ease-in-out infinite; }
+  @keyframes respira { 0%,100% { opacity: .35; } 50% { opacity: .85; } }
+
+  .controles {
+    position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 14px;
+    display: flex; gap: 8px;
+  }
+  .controles button {
+    font: inherit; font-size: 1rem; color: var(--texto);
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3);
+    border-radius: 999px; padding: 8px 16px; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity 1.2s ease;
+  }
+  .controles.ativo button { opacity: 1; pointer-events: auto; }
+  .controles button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sol, .ceu-dia, .ceu-noite, .foto, .veu { transition-duration: .01s; }
+    .frase { transition-duration: .3s; transform: none; }
+    .pulsa { animation: none; opacity: .7; }
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --texto: #fff8f0; } }
+</style>
+</head>
+<body>
+<div class="cena" id="cena">
+  <div class="ceu-noite"></div>
+  <div class="ceu-dia"></div>
+  <div class="foto"></div>
+  <div class="veu"></div>
+  <div class="estrelas" id="estrelas" aria-hidden="true"></div>
+  <div class="sol" aria-hidden="true"></div>
+
+  <main>
+    <p class="frase abertura" id="frase" aria-live="polite">Millena, o seu dia ainda está nascendo...</p>
+  </main>
+
+  <p class="dica pulsa" id="dica">toque na tela para amanhecer</p>
+  <div class="controles" id="controles">
+    <button id="som" type="button" aria-label="Ligar ou desligar a música">música: ligada</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var cena = document.getElementById('cena');
+  var fraseEl = document.getElementById('frase');
+  var dica = document.getElementById('dica');
+  var controles = document.getElementById('controles');
+  var somBtn = document.getElementById('som');
+
+  var frases = [
+    "Bom dia, Millena.",
+    "Mesmo com uma tela entre nós, você é o primeiro pensamento do meu dia.",
+    "Tem gente que chega devagar e, de repente, ocupa o lugar mais bonito de tudo.",
+    "Cada mensagem sua é um nascer do sol que cabe no meu bolso.",
+    "O seu sorriso, mesmo visto de longe, muda a cor da minha manhã.",
+    "A distância é só um detalhe que o carinho ainda está resolvendo.",
+    "Que o seu café seja doce, o seu caminho leve e o seu dia, bonito.",
+    "E se o dia pesar, lembre-se: tem alguém torcendo por você daqui.",
+    "Bom dia, Millena. Hoje e sempre."
+  ];
+
+  /* estrelas */
+  var est = document.getElementById('estrelas');
+  for (var s = 0; s < 46; s++) {
+    var i = document.createElement('i');
+    i.style.left = (Math.random() * 100) + '%';
+    i.style.top = (Math.random() * 70) + '%';
+    i.style.opacity = (0.3 + Math.random() * 0.6).toFixed(2);
+    var t = 1 + Math.random() * 2; i.style.width = i.style.height = t + 'px';
+    est.appendChild(i);
+  }
+
+  /* música suave gerada no próprio aparelho */
+  var ctx = null, master = null, tocando = false, timer = null, passo = 0;
+  var acordes = [
+    [174.61, 220.00, 261.63, 329.63],   // Fmaj7
+    [130.81, 196.00, 261.63, 329.63],   // C
+    [146.83, 220.00, 261.63, 349.23],   // Dm7
+    [116.54, 174.61, 233.08, 293.66]    // Bb
+  ];
+  var nota = [523.25, 659.25, 783.99, 880.00];
+
+  function pad(freqs, quando, dur) {
+    freqs.forEach(function (f, k) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f; o.detune.value = (k - 1.5) * 4;
+      g.gain.setValueAtTime(0.0001, quando);
+      g.gain.linearRampToValueAtTime(0.05, quando + dur * 0.4);
+      g.gain.linearRampToValueAtTime(0.0001, quando + dur);
+      o.connect(g); g.connect(master);
+      o.start(quando); o.stop(quando + dur + 0.1);
+    });
+  }
+  function sino(f, quando) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, quando);
+    g.gain.exponentialRampToValueAtTime(0.045, quando + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, quando + 2.4);
+    o.connect(g); g.connect(master);
+    o.start(quando); o.stop(quando + 2.5);
+  }
+  function agenda() {
+    if (!tocando) return;
+    var agora = ctx.currentTime + 0.05, dur = 6;
+    pad(acordes[passo % acordes.length], agora, dur + 1.5);
+    for (var n = 0; n < 4; n++) {
+      sino(nota[(n + passo) % 4], agora + 0.8 + n * 1.3);
+    }
+    passo++;
+    timer = setTimeout(agenda, dur * 1000);
+  }
+  function ligarMusica() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = new AC();
+      master = ctx.createGain(); master.gain.value = 0.9;
+      var eco = ctx.createDelay(1.0); eco.delayTime.value = 0.42;
+      var fb = ctx.createGain(); fb.gain.value = 0.35;
+      master.connect(ctx.destination);
+      master.connect(eco); eco.connect(fb); fb.connect(eco); eco.connect(ctx.destination);
+      if (ctx.state === 'suspended') ctx.resume();
+      tocando = true; agenda();
+    } catch (e) { /* sem áudio, segue em silêncio */ }
+  }
+  somBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (!ctx) return;
+    if (tocando) {
+      tocando = false; clearTimeout(timer); master.gain.value = 0; somBtn.textContent = 'música: desligada';
+    } else {
+      master.gain.value = 0.9; tocando = true; agenda(); somBtn.textContent = 'música: ligada';
+    }
+  });
+
+  /* sequência das frases */
+  var comecou = false, indice = -1, auto = null, trocando = false;
+
+  function mostrar(texto, classe) {
+    trocando = true;
+    fraseEl.classList.remove('visivel');
+    setTimeout(function () {
+      fraseEl.textContent = texto;
+      fraseEl.className = 'frase' + (classe ? ' ' + classe : '');
+      void fraseEl.offsetWidth;
+      fraseEl.classList.add('visivel');
+      trocando = false;
+    }, 1400);
+  }
+  function proxima() {
+    clearTimeout(auto);
+    if (trocando) return;
+    if (indice >= frases.length - 1) return;
+    indice++;
+    var ultima = indice === frases.length - 1;
+    mostrar(frases[indice], ultima ? 'final' : '');
+    if (!ultima) auto = setTimeout(proxima, 7500);
+  }
+  function comecar() {
+    comecou = true;
+    ligarMusica();
+    dica.classList.add('some');
+    controles.classList.add('ativo');
+    cena.classList.add('dia');
+    document.body.classList.add('dia');
+    fraseEl.classList.remove('visivel');
+    setTimeout(proxima, 3500);
+  }
+
+  fraseEl.classList.add('visivel');
+  document.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('#som')) return;
+    if (!comecou) { comecar(); return; }
+    proxima();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); comecou ? proxima() : comecar(); }
+  });
+})();
+</script>
+</body>
+</html>
